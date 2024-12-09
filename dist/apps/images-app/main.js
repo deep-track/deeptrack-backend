@@ -23,21 +23,22 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ImagesAppController = void 0;
 const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
 const images_app_service_1 = __webpack_require__(/*! ./images-app.service */ "./apps/images-app/src/images-app.service.ts");
+const microservices_1 = __webpack_require__(/*! @nestjs/microservices */ "@nestjs/microservices");
 let ImagesAppController = class ImagesAppController {
     constructor(imagesAppService) {
         this.imagesAppService = imagesAppService;
     }
-    getHello() {
-        return this.imagesAppService.getHello();
+    async handleImageSubmitted(data) {
+        console.log(data);
     }
 };
 exports.ImagesAppController = ImagesAppController;
 __decorate([
-    (0, common_1.Get)(),
+    (0, microservices_1.EventPattern)('image_submitted'),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", String)
-], ImagesAppController.prototype, "getHello", null);
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], ImagesAppController.prototype, "handleImageSubmitted", null);
 exports.ImagesAppController = ImagesAppController = __decorate([
     (0, common_1.Controller)(),
     __metadata("design:paramtypes", [typeof (_a = typeof images_app_service_1.ImagesAppService !== "undefined" && images_app_service_1.ImagesAppService) === "function" ? _a : Object])
@@ -95,9 +96,6 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ImagesAppService = void 0;
 const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
 let ImagesAppService = class ImagesAppService {
-    getHello() {
-        return 'Hello World!';
-    }
 };
 exports.ImagesAppService = ImagesAppService;
 exports.ImagesAppService = ImagesAppService = __decorate([
@@ -124,6 +122,16 @@ module.exports = require("@nestjs/common");
 /***/ ((module) => {
 
 module.exports = require("@nestjs/core");
+
+/***/ }),
+
+/***/ "@nestjs/microservices":
+/*!****************************************!*\
+  !*** external "@nestjs/microservices" ***!
+  \****************************************/
+/***/ ((module) => {
+
+module.exports = require("@nestjs/microservices");
 
 /***/ })
 
@@ -165,9 +173,20 @@ var exports = __webpack_exports__;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core_1 = __webpack_require__(/*! @nestjs/core */ "@nestjs/core");
 const images_app_module_1 = __webpack_require__(/*! ./images-app.module */ "./apps/images-app/src/images-app.module.ts");
+const microservices_1 = __webpack_require__(/*! @nestjs/microservices */ "@nestjs/microservices");
 async function bootstrap() {
-    const app = await core_1.NestFactory.create(images_app_module_1.ImagesAppModule);
-    await app.listen(process.env.port ?? 3011);
+    const app = await core_1.NestFactory.createMicroservice(images_app_module_1.ImagesAppModule, {
+        transport: microservices_1.Transport.KAFKA,
+        options: {
+            client: {
+                brokers: ['localhost:9092']
+            },
+            consumer: {
+                groupId: 'images-consumer'
+            }
+        }
+    });
+    await app.listen();
 }
 bootstrap();
 
