@@ -36,6 +36,15 @@
       "compilerOptions": {
         "tsConfigPath": "apps/images-app/tsconfig.app.json"
       }
+    },
+    "drizzle": {
+      "type": "library",
+      "root": "libs/drizzle",
+      "entryFile": "index",
+      "sourceRoot": "libs/drizzle/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/drizzle/tsconfig.lib.json"
+      }
     }
   }
 }
