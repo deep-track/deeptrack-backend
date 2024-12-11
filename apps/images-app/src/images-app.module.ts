@@ -7,5 +7,4 @@ import { ImagesAppService } from './images-app.service';
   controllers: [ImagesAppController],
   providers: [ImagesAppService],
 })
-
 export class ImagesAppModule {}
