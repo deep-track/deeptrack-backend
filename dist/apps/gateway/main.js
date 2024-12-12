@@ -75,29 +75,26 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var _a, _b, _c, _d;
+var _a, _b;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AppController = void 0;
 const common_1 = __webpack_require__(3);
 const app_service_1 = __webpack_require__(5);
-const platform_express_1 = __webpack_require__(8);
-const app_dto_1 = __webpack_require__(9);
+const app_dto_1 = __webpack_require__(7);
 let AppController = class AppController {
     constructor(appService) {
         this.appService = appService;
     }
-    async uploadImage(file, uploadImageDto) {
-        return this.appService.processImage(file, uploadImageDto);
+    async uploadImage(uploadImageDto) {
+        return this.appService.processImage(uploadImageDto);
     }
 };
 exports.AppController = AppController;
 __decorate([
     (0, common_1.Post)('/uploadImage'),
-    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file')),
-    __param(0, (0, common_1.UploadedFile)()),
-    __param(1, (0, common_1.Body)()),
+    __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_c = typeof Express !== "undefined" && (_b = Express.Multer) !== void 0 && _b.File) === "function" ? _c : Object, typeof (_d = typeof app_dto_1.UploadImageDto !== "undefined" && app_dto_1.UploadImageDto) === "function" ? _d : Object]),
+    __metadata("design:paramtypes", [typeof (_b = typeof app_dto_1.UploadImageDto !== "undefined" && app_dto_1.UploadImageDto) === "function" ? _b : Object]),
     __metadata("design:returntype", Promise)
 ], AppController.prototype, "uploadImage", null);
 exports.AppController = AppController = __decorate([
@@ -128,21 +125,19 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AppService = void 0;
 const common_1 = __webpack_require__(3);
 const microservices_1 = __webpack_require__(6);
-const image_submited_1 = __webpack_require__(7);
 let AppService = class AppService {
     constructor(imagesProxyClient) {
         this.imagesProxyClient = imagesProxyClient;
     }
-    async processImage(file, payload) {
+    async processImage(payload) {
         try {
-            this.imagesProxyClient.emit('image_submitted', new image_submited_1.ImageSubmittedEvent(file, payload.filename));
-            return {
-                status: 'Image submitted successfully',
-                filename: file.originalname
-            };
+            console.log('Payload received:', payload);
+            this.imagesProxyClient.emit('image_submitted', {
+                filename: payload.filename
+            });
         }
         catch (error) {
-            throw new Error(`Failed to process image: ${error.message}`);
+            throw new Error(`Failed to process image at app service: ${error.message}`);
         }
     }
 };
@@ -162,28 +157,6 @@ module.exports = require("@nestjs/microservices");
 
 /***/ }),
 /* 7 */
-/***/ ((__unused_webpack_module, exports) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.ImageSubmittedEvent = void 0;
-class ImageSubmittedEvent {
-    constructor(file, filename) {
-        this.file = file;
-        this.filename = filename;
-    }
-}
-exports.ImageSubmittedEvent = ImageSubmittedEvent;
-
-
-/***/ }),
-/* 8 */
-/***/ ((module) => {
-
-module.exports = require("@nestjs/platform-express");
-
-/***/ }),
-/* 9 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -198,34 +171,31 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.UploadImageDto = void 0;
-const class_validator_1 = __webpack_require__(10);
-const swagger_1 = __webpack_require__(11);
+const class_validator_1 = __webpack_require__(8);
+const swagger_1 = __webpack_require__(9);
 class UploadImageDto {
 }
 exports.UploadImageDto = UploadImageDto;
 __decorate([
     (0, swagger_1.ApiProperty)({
-        description: 'Original filename of the id',
-        example: 'id.jpg'
+        description: 'Original filename url',
+        example: 'https://front-id.aws'
     }),
     (0, class_validator_1.IsNotEmpty)({ message: 'Filename cannot be empty' }),
     (0, class_validator_1.IsString)({ message: 'Filename must be a string' }),
     (0, class_validator_1.MaxLength)(255, { message: 'Filename is too long' }),
-    (0, class_validator_1.Matches)(/\.(jpg|jpeg|png)$/i, {
-        message: 'Only image files (jpg, jpeg, png) are allowed'
-    }),
     __metadata("design:type", String)
 ], UploadImageDto.prototype, "filename", void 0);
 
 
 /***/ }),
-/* 10 */
+/* 8 */
 /***/ ((module) => {
 
 module.exports = require("class-validator");
 
 /***/ }),
-/* 11 */
+/* 9 */
 /***/ ((module) => {
 
 module.exports = require("@nestjs/swagger");
