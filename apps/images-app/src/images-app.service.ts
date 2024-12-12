@@ -1,25 +1,36 @@
-import { Injectable } from '@nestjs/common';
+import { DrizzleAsyncProvider } from '@app/lib-drizzle/drizzle.provider';
+import { Inject, Injectable } from '@nestjs/common';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import * as sc from '../../../libs/lib-drizzle/schema';
 
 @Injectable()
 export class ImagesAppService {
+  constructor(
+    @Inject(DrizzleAsyncProvider)
+    private db: NodePgDatabase<typeof sc>,
+  ) {}
 
-detectai(filename: string){
+  async detectai(filename: string) {
+    try {
+      const insertedImage = await this.db.insert(sc.images)
+        .values({
+          imageurl: filename
+        })
+        .returning();
 
-    if(filename ){
-        return {
-            status: 200 ,
-            data: filename,
-            message: "AI generation not detected at Images service"
-          };
+      return {
+        status: 200,
+        data: insertedImage[0],
+        message: "Image added to Database"
+      };
+      
+    } catch (error) {
+      console.error('Error inserting imageurl to db:', error);
+      return {
+        status: 500,
+        data: null,
+        message: "Error Inseting imageurl to db"
+      };
     }
-
-return {
-    status: 500,
-    verified: false,
-    message: "AI generation detected for this Image"
-}
-
-}
-
-
+  }
 }
