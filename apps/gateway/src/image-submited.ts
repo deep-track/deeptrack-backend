@@ -1,6 +1,4 @@
+// image-submited.ts
 export class ImageSubmittedEvent {
-    constructor(
-        public readonly file: Express.Multer.File,
-        public readonly filename: string
-    ) {}
-}
+    constructor(public filename: string) {}
+  }

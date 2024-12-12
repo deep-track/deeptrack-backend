@@ -10,16 +10,17 @@ export class AppService {
     @Inject('IMAGES_SERVICE') private readonly imagesProxyClient: ClientKafka
   ) {}
 
-  async processImage(file: Express.Multer.File, payload: UploadImageDto) {
-    try {      
-      // Emit the event to Kafka topic
-      this.imagesProxyClient.emit('image_submitted', new ImageSubmittedEvent(file, payload.filename ));
-      return {
-        status: 'Image submitted successfully',
-        filename: file.originalname
-      };
+  async processImage(payload: UploadImageDto) {
+    try {
+      // Log the payload to verify
+      console.log('Payload received:', payload);
+  
+      // Emit the event with the full payload
+      this.imagesProxyClient.emit('image_submitted', {
+        filename: payload.filename
+      });
     } catch (error) {
-      throw new Error(`Failed to process image: ${error.message}`);
+      throw new Error(`Failed to process image at app service: ${error.message}`);
     }
   }
 }
